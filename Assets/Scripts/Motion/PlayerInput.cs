@@ -1,18 +1,28 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerInput : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public float speed;
+    private Rigidbody rigi;
+
+    private void Start()
     {
-        
+        UnityEngine.Camera.main.enabled = false;
+        rigi = GetComponent<Rigidbody>();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void FixedUpdate()
     {
-        
+        float Dright = Input.GetAxis("Horizontal");
+        float Dup = Input.GetAxis("Vertical");
+        print(Dright);
+
+        Vector3 Ddir = new Vector3(Dright, 0,Dup);
+        Ddir.Normalize();
+
+        rigi.velocity = transform.TransformDirection(Ddir) * speed * Time.deltaTime;
     }
 }
