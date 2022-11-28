@@ -58,7 +58,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\CameraS\Look.cs" />
+     <Compile Include="Assets\Scripts\CameraS\CameraLook.cs" />
      <Compile Include="Assets\Scripts\Motion\PlayerInput.cs" />
  <Reference Include="Unity.Timeline.Editor">
  <HintPath>Z:/ECE3200/FPSGameOnline/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
