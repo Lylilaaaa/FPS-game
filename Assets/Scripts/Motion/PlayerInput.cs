@@ -5,13 +5,23 @@ using UnityEngine;
 
 public class PlayerInput : MonoBehaviour
 {
+    [Header("===== Settings =====")]
+    public Camera normalCamera;
+    public LayerMask ground;
+    public GameObject groundSenser;
+    
+    [Header("===== Digital Settings =====")]
     public float originSpeed;
     public float runningSpeedAdd;
-    public Camera normalCamera;
     public float jumpForce;
-    public GameObject groundSenser;
-    public LayerMask ground;
-
+    
+    [Header("===== Input Settings =====")]
+    public string Jump_;
+    public string Run_1;
+    public string Run_2;
+    
+    
+    
     private float nowSpeed;
     private Rigidbody rigi;
 
@@ -28,17 +38,18 @@ public class PlayerInput : MonoBehaviour
 
     private void FixedUpdate()
     {
+        //获取输入
         float Dright = Input.GetAxisRaw("Horizontal");
         float Dup = Input.GetAxisRaw("Vertical");
-
-        bool run = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-        bool jump = Input.GetKeyDown(KeyCode.F);
-
+        bool run = Input.GetKey(Run_1) || Input.GetKey(Run_2);
+        bool jump = Input.GetKeyDown(Jump_);
+        
+        //条件检测
         bool isJumping = jump;
         bool isRunning = run && Dup> 0;
-        bool isGround = Physics.Raycast(groundSenser.transform.position, Vector3.down, 0.1f, ground);
+        bool isGround = Physics.Raycast(groundSenser.transform.position, Vector3.down, 0.1f, ground); //地面检测
         
-        
+        //输出
         Vector3 Ddir = new Vector3(Dright, 0, Dup);
         Ddir.Normalize();
 

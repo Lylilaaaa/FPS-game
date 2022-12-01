@@ -7,6 +7,7 @@ namespace CameraS
     {
         public Transform player;
         public Transform cams;
+        public Transform weapon;
 
         public float xSensitivity;
         public float ySensitivity;
@@ -34,6 +35,7 @@ namespace CameraS
             Quaternion t_adj = Quaternion.AngleAxis(t_input, Vector3.up);
             Quaternion t_delta = player.localRotation * t_adj;
             player.localRotation = t_delta;
+            weapon.rotation = cams.rotation;
         }
 
         void SetY()
@@ -42,8 +44,8 @@ namespace CameraS
             //print("mouse Y"+Input.GetAxis("Mouse Y"));
             Quaternion t_adj = Quaternion.AngleAxis(t_input, -Vector3.right);
             Quaternion t_delta = cams.localRotation * t_adj;
-            if (Quaternion.Angle(camCenter,t_delta) < maxAngle)
-                cams.localRotation = t_delta;
+            if (Quaternion.Angle(camCenter,t_delta) < maxAngle) cams.localRotation = t_delta;
+            weapon.rotation = cams.rotation;
         }
 
         private void CursorLock()
