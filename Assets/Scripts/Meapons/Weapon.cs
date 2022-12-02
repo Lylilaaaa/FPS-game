@@ -2,10 +2,12 @@ using System;
 using ScriptableObjGen;
 using UnityEditor;
 using UnityEngine;
+using Random = UnityEngine.Random;
+using Photon.Pun;
 
 namespace Meapons
 {
-    public class Weapon : MonoBehaviour
+    public class Weapon : MonoBehaviourPunCallbacks
     {
         [Header("===== Default Setting =====")]
         public Gun[] loadout;
@@ -20,21 +22,33 @@ namespace Meapons
 
         private int currentIndex;
         private GameObject currentWeapon;
+        private float currentCooldown;
         
 
         private void Update()
         {
-            if(Input.GetKeyDown(WeaponUp)) Equip(0);
+            if(photonView.IsMine && Input.GetKeyDown(WeaponUp))
+            {
+                photonView.RPC("Equip",RpcTarget.All,0);
+            };
+            
             if (currentWeapon != null)
             {
-                Aim(Input.GetKey(Aimming));
-                if (Input.GetKeyDown(Shooting))
+                if (photonView.IsMine)
                 {
-                    Shoot();
+                    Aim(Input.GetKey(Aimming));
+                    if (Input.GetKeyDown(Shooting) && currentCooldown<=0)
+                    {
+                        photonView.RPC("Shoot", RpcTarget.All);
+                    }
+                    if (currentCooldown > 0) currentCooldown -= Time.deltaTime;
                 }
+                currentWeapon.transform.localPosition = Vector3.Lerp(currentWeapon.transform.localPosition,Vector3.zero, Time.deltaTime * 4f);
+                currentWeapon.transform.localRotation = Quaternion.Lerp(currentWeapon.transform.localRotation,Quaternion.identity, Time.deltaTime * 4f);
             }
         }
 
+        [PunRPC]
         void Equip(int p_ind)
         {
             if(currentWeapon != null) Destroy(currentWeapon);
@@ -43,6 +57,7 @@ namespace Meapons
             GameObject t_newEquipment = Instantiate(loadout[p_ind].prefab,weaponParent.position,weaponParent.rotation,weaponParent) as GameObject;
             t_newEquipment.transform.localPosition = Vector3.zero;
             t_newEquipment.transform.localEulerAngles = Vector3.zero;
+            t_newEquipment.GetComponent<Sway>().isMine = photonView.IsMine;
             
             currentWeapon = t_newEquipment;
         }
@@ -62,19 +77,50 @@ namespace Meapons
             }
         }
 
+        [PunRPC]
         void Shoot()
         {
             Transform t_spawn = transform.Find("Cameras/NormalCamera");
             
             //bloom
+            Vector3 t_bloom = t_spawn.position + t_spawn.forward * 1000f;
+            t_bloom += Random.Range(-loadout[currentIndex].bloom, loadout[currentIndex].bloom) * t_spawn.up;
+            t_bloom += Random.Range(-loadout[currentIndex].bloom, loadout[currentIndex].bloom) * t_spawn.right;
+            t_bloom -= t_spawn.position;
+            t_bloom.Normalize();
             
-            
+            //raycast
             RaycastHit t_hit = new RaycastHit();
-            if (Physics.Raycast(t_spawn.position, t_spawn.forward,out t_hit, 1000f, canBeShot))
+            if (Physics.Raycast(t_spawn.position, t_bloom,out t_hit, 1000f, canBeShot))
             {
                 GameObject t_newHole = Instantiate(bulletHolePrefab,t_hit.point+t_hit.normal*0.01f,Quaternion.identity) as GameObject;
                 t_newHole.transform.LookAt(t_hit.point+t_hit.normal);
                 Destroy(t_newHole,2f);
+
+                if (photonView.IsMine)
+                {
+                    if (t_hit.collider.gameObject.layer == 12)
+                    {
+                        //Do damage
+                       t_hit.collider.gameObject.GetPhotonView().RPC("TakeDamage",RpcTarget.All,loadout[currentIndex].damage);
+                    }
+                }
+            }
+            
+            //gun fx
+            currentWeapon.transform.Rotate(-loadout[currentIndex].recoil,0,0);
+            currentWeapon.transform.position -= currentWeapon.transform.forward * loadout[currentIndex].kickback;
+            
+            //set cooldown
+            currentCooldown = loadout[currentIndex].firerate;
+        }
+
+        [PunRPC]
+         void TakeDamage(int p_damage)
+        {
+            if (photonView.IsMine)
+            {
+                GetComponent<Player>().TakeDamage_(p_damage);
             }
         }
     }

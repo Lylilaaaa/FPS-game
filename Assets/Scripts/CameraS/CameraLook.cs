@@ -1,9 +1,11 @@
 using System;
 using UnityEngine;
+using Photon.Pun;
+
 
 namespace CameraS
 {
-    public class CameraLook: MonoBehaviour
+    public class CameraLook: MonoBehaviourPunCallbacks
     {
         public Transform player;
         public Transform cams;
@@ -23,6 +25,7 @@ namespace CameraS
 
         private void FixedUpdate()
         {
+            if(!photonView.IsMine) return;
             SetY();
             SetX();
             CursorLock();
