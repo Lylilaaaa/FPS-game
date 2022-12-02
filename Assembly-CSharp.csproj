@@ -61,7 +61,7 @@
      <Compile Include="Assets\Scripts\CameraS\CameraLook.cs" />
      <Compile Include="Assets\Scripts\Meapons\Sway.cs" />
      <Compile Include="Assets\Scripts\Meapons\Weapon.cs" />
-     <Compile Include="Assets\Scripts\Motion\PlayerInput.cs" />
+     <Compile Include="Assets\Scripts\Motion\Motions.cs" />
      <Compile Include="Assets\Scripts\ScriptableObjGen\Gun.cs" />
  <Reference Include="Unity.Timeline.Editor">
  <HintPath>Z:/ECE3200/FPSGameOnline/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

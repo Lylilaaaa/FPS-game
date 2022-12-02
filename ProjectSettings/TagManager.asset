@@ -14,9 +14,9 @@ TagManager:
   - 
   - 
   - ground
-  - 
-  - 
-  - 
+  - canBeShot
+  - LocalPlayer
+  - Gun
   - 
   - 
   - 
